@@ -43,10 +43,6 @@ export const VehiculoCard = ({ vehiculo, isSelected, onClick }) => {
             </span>
           </p>
           <div className="flex items-center gap-1.5 mt-1.5">
-            <span className="text-[10px] font-semibold text-slate-450 dark:text-slate-400">
-              Año: {vehiculo.anio || vehiculo.year || vehiculo.anio_fabricacion || 'N/A'}
-            </span>
-            <span className="text-slate-300 dark:text-slate-750">•</span>
             <Badge variant={isAutomovil ? 'info' : 'warning'} className="px-1.5 py-0 text-[9px]">
               {isAutomovil ? 'Automóvil' : 'Motocicleta'}
             </Badge>

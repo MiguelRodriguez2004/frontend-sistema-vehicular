@@ -671,13 +671,6 @@ const NuevaOrdenPage = () => {
             value={newVehicle.modelo}
             onChange={(e) => setNewVehicle({ ...newVehicle, modelo: e.target.value })}
           />
-          <Input
-            label="Año"
-            type="number"
-            placeholder="Ej: 2022"
-            value={newVehicle.anio}
-            onChange={(e) => setNewVehicle({ ...newVehicle, anio: e.target.value })}
-          />
           
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">

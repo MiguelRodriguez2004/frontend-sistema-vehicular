@@ -151,8 +151,6 @@ const DetalleOrdenPage = () => {
               <h4 className="font-bold text-slate-950 dark:text-white">{orden.vehiculo.marca} {orden.vehiculo.modelo}</h4>
               <div className="text-slate-600 dark:text-slate-300 space-y-1.5">
                 <p><span className="text-slate-400 text-xs block">Placa:</span> <span className="font-bold uppercase text-blue-600 dark:text-blue-400">{orden.vehiculo.placa}</span></p>
-                <p><span className="text-slate-400 text-xs block">Año:</span> {orden.vehiculo.anio}</p>
-                <p><span className="text-slate-400 text-xs block">Color:</span> {orden.vehiculo.color}</p>
               </div>
             </CardBody>
           </Card>
