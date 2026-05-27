@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, Car, Bike, Save, ArrowLeft, Search, Check, ClipboardList, Wrench, CreditCard, Mail, Phone, Calendar } from 'lucide-react';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/ui/Card';
@@ -12,6 +12,9 @@ import vehiculoService from '../services/vehiculoService';
 import VehiculoList from '../components/vehiculos/VehiculoList';
 import VehiculoSkeleton from '../components/vehiculos/VehiculoSkeleton';
 import VehiculoEmptyState from '../components/vehiculos/VehiculoEmptyState';
+import CreateVehiculoModal from '../components/vehiculos/CreateVehiculoModal';
+import ordenService from '../services/ordenService';
+import OrdenFormSection from '../components/ordenes/OrdenFormSection';
 
 // Clientes iniciales para simulación de búsqueda
 const INITIAL_CLIENTES = [
@@ -51,15 +54,18 @@ const NuevaOrdenPage = () => {
   const [clientes, setClientes] = useState(INITIAL_CLIENTES);
   const [searchCedula, setSearchCedula] = useState('');
 
-  // Datos de la Orden
+  // Datos de la Orden (Homologados con backend real)
   const [kilometraje, setKilometraje] = useState('');
-  const [tipoServicio, setTipoServicio] = useState('preventivo');
-  const [descripcion, setDescripcion] = useState('');
-  const [novedades, setNovedades] = useState('');
+  const [tipoServicio, setTipoServicio] = useState('PREVENTIVO');
+  const [diagnostico, setDiagnostico] = useState('');
+  const [isSavingOrden, setIsSavingOrden] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  // Referencia para focus visual automático de vehículos
+  const vehiculoSeccionRef = useRef(null);
 
   // Formularios de Creación Rápida en Modales
   const [newClient, setNewClient] = useState({ nombre: '', email: '', telefono: '', cedula: '' });
-  const [newVehicle, setNewVehicle] = useState({ marca: '', modelo: '', placa: '', anio: '', tipo: 'automovil' });
 
   // Buscar Cliente por Cédula / Identificación de forma real en backend
   const handleBuscarCliente = async () => {
@@ -236,44 +242,171 @@ const NuevaOrdenPage = () => {
     handleConsultarVehiculos(clienteSeleccionado.id);
   }, [clienteSeleccionado?.id]);
 
-  // Guardar Nuevo Vehículo (Modal)
-  const handleSaveVehicle = (e) => {
-    e.preventDefault();
-    if (!newVehicle.placa || !newVehicle.marca || !newVehicle.modelo) return;
-
-    const createdVehicle = {
-      id: Date.now(),
-      ...newVehicle
-    };
-
-    const updatedVehiculos = [...vehiculosCliente, createdVehicle];
-    setVehiculosCliente(updatedVehiculos);
+  // Callback ejecutado tras crear exitosamente un vehículo real
+  const handleVehicleCreated = async (createdVehicle) => {
+    // 3. Auto-selección inmediata antes de refrescar
     setVehiculoSeleccionado(createdVehicle);
-    setNewVehicle({ marca: '', modelo: '', placa: '', anio: '', tipo: 'automovil' });
+
+    // Añadir localmente de inmediato para evitar flicker o retardo visual
+    setVehiculosCliente(prev => {
+      const filtered = prev.filter(v => v.id !== createdVehicle.id && v.placa !== createdVehicle.placa);
+      return [...filtered, createdVehicle];
+    });
+
+    // Cerrar el modal
     setIsVehicleModalOpen(false);
+
+    // 7. UX: Asegurar focus visual automático hacia la sección de vehículos con scroll suave
+    setTimeout(() => {
+      vehiculoSeccionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+
+    // 4. Evitar flicker visual: Refrescar la lista en background sin limpiar estados
+    if (clienteSeleccionado?.id) {
+      try {
+        const data = await vehiculoService.obtenerVehiculosPorCliente(clienteSeleccionado.id);
+        setVehiculosCliente(data);
+        
+        // Sincronizar selección con el objeto real persistido por el backend
+        const found = data.find(v => v.id === createdVehicle.id || v.placa === createdVehicle.placa);
+        if (found) {
+          setVehiculoSeleccionado(found);
+        }
+      } catch (err) {
+        console.error('Error al refrescar vehículos en background:', err);
+      }
+    }
   };
 
-  // Enviar / Guardar Orden de Trabajo completa
-  const handleSaveOrden = (e) => {
-    e.preventDefault();
-    if (!clienteSeleccionado || !vehiculoSeleccionado || !kilometraje || !descripcion) {
-      alert('Por favor complete todos los datos mandatorios (Cliente, Vehículo, Kilometraje y Diagnóstico).');
+  // Enviar / Guardar Orden de Trabajo completa consumiendo el backend real
+  const handleSaveOrden = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setErrors({});
+
+    // Validar cliente y vehículo seleccionados
+    if (!clienteSeleccionado) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cliente Requerido',
+        text: 'Por favor, busque y seleccione un cliente en el paso 1 para registrar la orden.',
+        background: '#1e293b',
+        color: '#f8fafc',
+        confirmButtonColor: '#3b82f6',
+        customClass: {
+          popup: 'rounded-xl border border-slate-700 shadow-lg'
+        }
+      });
       return;
     }
 
-    const ordenData = {
-      clienteId: clienteSeleccionado.id,
-      vehiculoId: vehiculoSeleccionado.id,
-      kilometraje,
-      tipoServicio,
-      descripcion,
-      novedades,
-      estado: 'Pendiente'
-    };
+    if (!vehiculoSeleccionado) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Vehículo Requerido',
+        text: 'Por favor, seleccione o registre un vehículo asociado al cliente en el paso 2.',
+        background: '#1e293b',
+        color: '#f8fafc',
+        confirmButtonColor: '#3b82f6',
+        customClass: {
+          popup: 'rounded-xl border border-slate-700 shadow-lg'
+        }
+      });
+      return;
+    }
 
-    console.log('Guardando Orden:', ordenData);
-    alert('Orden registrada con éxito (Simulado)');
-    navigate('/ordenes');
+    const localErrors = {};
+    const trimmedDiagnostico = diagnostico.trim();
+
+    // Validar Diagnóstico
+    if (!trimmedDiagnostico) {
+      localErrors.diagnostico = 'El diagnóstico o trabajo requerido es obligatorio.';
+    }
+
+    // Normalizar y validar Kilometraje
+    const numKilometraje = Number(kilometraje);
+    if (!kilometraje || isNaN(numKilometraje) || numKilometraje <= 0) {
+      localErrors.kilometraje = 'Debe ingresar un kilometraje válido mayor a 0.';
+    }
+
+    if (Object.keys(localErrors).length > 0) {
+      setErrors(localErrors);
+      return;
+    }
+
+    setIsSavingOrden(true);
+    try {
+      const payload = {
+        vehiculoId: Number(vehiculoSeleccionado.id),
+        tecnicoId: 1, // Técnico estático por ahora, preparado para AuthContext futuro
+        kilometraje: numKilometraje,
+        tipoServicio: tipoServicio.toUpperCase(),
+        diagnostico: trimmedDiagnostico
+      };
+
+      const response = await ordenService.crearOrden(payload);
+
+      // Mostrar SweetAlert2 Toast de Éxito primero
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Orden registrada con éxito',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        background: '#1e293b', // slate-800
+        color: '#f8fafc',      // slate-50
+        iconColor: '#3b82f6',  // blue-500
+        customClass: {
+          popup: 'rounded-xl border border-slate-700/60 shadow-lg animate-fadeIn'
+        }
+      });
+
+      // Redirección recomendada a /ordenes/:id después del Toast exitoso, evitando borrar estados
+      const createdId = response?.id || response?.ordenId;
+      setTimeout(() => {
+        if (createdId) {
+          navigate(`/ordenes/${createdId}`);
+        } else {
+          navigate('/ordenes');
+        }
+      }, 500); // 500ms delay para mantener fluidez y evitar saltos bruscos
+
+    } catch (err) {
+      console.error('Error al guardar la orden de trabajo en el servidor:', err);
+
+      // Mapear los errores técnicos a mensajes sumamente amigables
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || '';
+      const status = err.response?.status;
+
+      let friendlyMessage = 'Ocurrió un error inesperado al registrar la orden. Por favor, reintente.';
+
+      if (status === 404 || errorMsg.toLowerCase().includes('vehiculo') || errorMsg.toLowerCase().includes('inexistente')) {
+        friendlyMessage = 'El vehículo seleccionado no se encuentra registrado en el servidor.';
+      } else if (status === 400 || errorMsg.toLowerCase().includes('prisma') || errorMsg.toLowerCase().includes('validation')) {
+        friendlyMessage = 'Los datos enviados no son válidos para el sistema. Verifique los campos ingresados.';
+      } else if (errorMsg.toLowerCase().includes('foreign key') || errorMsg.toLowerCase().includes('tecnico')) {
+        friendlyMessage = 'El técnico asignado no es válido o no existe en el sistema.';
+      } else if (status === 500) {
+        friendlyMessage = 'Error interno del servidor. Por favor, intente más tarde o consulte con soporte técnico.';
+      } else if (errorMsg) {
+        friendlyMessage = errorMsg;
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al Registrar Orden',
+        text: friendlyMessage,
+        background: '#1e293b',
+        color: '#f8fafc',
+        confirmButtonColor: '#ef4444',
+        customClass: {
+          popup: 'rounded-xl border border-slate-700 shadow-lg'
+        }
+      });
+    } finally {
+      setIsSavingOrden(false);
+    }
   };
 
   return (
@@ -432,126 +565,68 @@ const NuevaOrdenPage = () => {
 
           {/* SECCIÓN 2: VEHÍCULO */}
           {clienteSeleccionado && (
-            <Card className="flex flex-col mt-6 flex-grow">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-5 h-5 text-xs bg-blue-600 text-white rounded-full">2</span>
-                  Vehículo Asociado
-                </h3>
-                <Button 
-                  onClick={() => setIsVehicleModalOpen(true)}
-                  icon={Car} 
-                  variant="outline" 
-                  size="sm"
-                >
-                  Registrar Vehículo
-                </Button>
-              </CardHeader>
-              <CardBody className="flex-grow justify-center flex flex-col">
-                {loadingVehiculos ? (
-                  <VehiculoSkeleton />
-                ) : errorVehiculos ? (
-                  <div className="p-4 bg-rose-50 dark:bg-rose-955/10 border border-rose-200/80 dark:border-rose-900/50 rounded-xl text-rose-600 dark:text-rose-400 text-sm flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
-                    <span>{errorVehiculos}</span>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="border-rose-200 hover:bg-rose-100 dark:border-rose-900 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-400 h-7 shrink-0"
-                      onClick={() => handleConsultarVehiculos(clienteSeleccionado.id)}
-                    >
-                      Reintentar
-                    </Button>
-                  </div>
-                ) : vehiculosCliente.length > 0 ? (
-                  <VehiculoList 
-                    vehiculos={vehiculosCliente}
-                    vehiculoSeleccionado={vehiculoSeleccionado}
-                    onSelectVehiculo={setVehiculoSeleccionado}
-                  />
-                ) : (
-                  <VehiculoEmptyState />
-                )}
-              </CardBody>
-            </Card>
+            <div ref={vehiculoSeccionRef} className="mt-6 flex flex-col flex-grow">
+              <Card className="flex flex-col flex-grow">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <span className="flex items-center justify-center w-5 h-5 text-xs bg-blue-600 text-white rounded-full">2</span>
+                    Vehículo Asociado
+                  </h3>
+                  <Button 
+                    onClick={() => setIsVehicleModalOpen(true)}
+                    icon={Car} 
+                    variant="outline" 
+                    size="sm"
+                  >
+                    Registrar Vehículo
+                  </Button>
+                </CardHeader>
+                <CardBody className="flex-grow justify-center flex flex-col">
+                  {loadingVehiculos ? (
+                    <VehiculoSkeleton />
+                  ) : errorVehiculos ? (
+                    <div className="p-4 bg-rose-50 dark:bg-rose-955/10 border border-rose-200/80 dark:border-rose-900/50 rounded-xl text-rose-600 dark:text-rose-400 text-sm flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+                      <span>{errorVehiculos}</span>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-rose-200 hover:bg-rose-100 dark:border-rose-900 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-400 h-7 shrink-0"
+                        onClick={() => handleConsultarVehiculos(clienteSeleccionado.id)}
+                      >
+                        Reintentar
+                      </Button>
+                    </div>
+                  ) : vehiculosCliente.length > 0 ? (
+                    <VehiculoList 
+                      vehiculos={vehiculosCliente}
+                      vehiculoSeleccionado={vehiculoSeleccionado}
+                      onSelectVehiculo={setVehiculoSeleccionado}
+                    />
+                  ) : (
+                    <VehiculoEmptyState onRegister={() => setIsVehicleModalOpen(true)} />
+                  )}
+                </CardBody>
+              </Card>
+            </div>
           )}
 
         </div>
 
         {/* Lado Derecho: Detalles de la Orden */}
         <div className="space-y-6 flex flex-col">
-          <Card className="h-full flex flex-col justify-between">
-            <div>
-              <CardHeader>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-5 h-5 text-xs bg-blue-600 text-white rounded-full">3</span>
-                  Detalles del Mantenimiento
-                </h3>
-              </CardHeader>
-              <CardBody className="space-y-4">
-                <Input
-                  label="Kilometraje Actual *"
-                  type="number"
-                  placeholder="Ej: 45000"
-                  required
-                  value={kilometraje}
-                  onChange={(e) => setKilometraje(e.target.value)}
-                />
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Tipo de Servicio *
-                  </label>
-                  <select
-                    value={tipoServicio}
-                    onChange={(e) => setTipoServicio(e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
-                  >
-                    <option value="preventivo">Preventivo</option>
-                    <option value="correctivo">Correctivo</option>
-                    <option value="diagnostico">Diagnóstico</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Diagnóstico / Trabajo Requerido *
-                  </label>
-                  <textarea
-                    placeholder="Describa el síntoma o el trabajo a realizar..."
-                    rows={4}
-                    required
-                    value={descripcion}
-                    onChange={(e) => setDescripcion(e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Observaciones / Novedades Iniciales
-                  </label>
-                  <textarea
-                    placeholder="Ej: Rayón en guardabarros izquierdo..."
-                    rows={2}
-                    value={novedades}
-                    onChange={(e) => setNovedades(e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200"
-                  />
-                </div>
-              </CardBody>
-            </div>
-            
-            <CardFooter className="pt-2 pb-5 px-5">
-              <Button
-                type="submit"
-                icon={Save}
-                variant="primary"
-                className="w-full h-10 text-sm font-bold shadow-md"
-              >
-                Crear Orden de Trabajo
-              </Button>
-            </CardFooter>
-          </Card>
+          <OrdenFormSection
+            cliente={clienteSeleccionado}
+            vehiculo={vehiculoSeleccionado}
+            kilometraje={kilometraje}
+            setKilometraje={setKilometraje}
+            tipoServicio={tipoServicio}
+            setTipoServicio={setTipoServicio}
+            diagnostico={diagnostico}
+            setDiagnostico={setDiagnostico}
+            errors={errors}
+            isSaving={isSavingOrden}
+            onSubmit={handleSaveOrden}
+          />
         </div>
 
       </form>
@@ -644,58 +719,12 @@ const NuevaOrdenPage = () => {
       {/* ========================================================================= */}
       {/* MODAL: REGISTRAR VEHÍCULO NUEVO */}
       {/* ========================================================================= */}
-      <Modal
+      <CreateVehiculoModal
         isOpen={isVehicleModalOpen}
         onClose={() => setIsVehicleModalOpen(false)}
-        title="Registrar Vehículo"
-      >
-        <form onSubmit={handleSaveVehicle} className="space-y-4">
-          <Input
-            label="Placa *"
-            placeholder="Ej: AAA-123"
-            required
-            value={newVehicle.placa}
-            onChange={(e) => setNewVehicle({ ...newVehicle, placa: e.target.value })}
-          />
-          <Input
-            label="Marca *"
-            placeholder="Ej: Toyota"
-            required
-            value={newVehicle.marca}
-            onChange={(e) => setNewVehicle({ ...newVehicle, marca: e.target.value })}
-          />
-          <Input
-            label="Modelo *"
-            placeholder="Ej: Hilux"
-            required
-            value={newVehicle.modelo}
-            onChange={(e) => setNewVehicle({ ...newVehicle, modelo: e.target.value })}
-          />
-          
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Tipo de Vehículo *
-            </label>
-            <select
-              value={newVehicle.tipo}
-              onChange={(e) => setNewVehicle({ ...newVehicle, tipo: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer"
-            >
-              <option value="automovil">Automóvil</option>
-              <option value="motocicleta">Motocicleta</option>
-            </select>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-700/50 mt-5">
-            <Button variant="secondary" onClick={() => setIsVehicleModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" variant="primary">
-              Registrar Vehículo
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        clienteId={clienteSeleccionado?.id}
+        onSuccess={handleVehicleCreated}
+      />
 
     </div>
   );

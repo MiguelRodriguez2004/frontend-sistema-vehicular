@@ -16,6 +16,7 @@ const Badge = ({
     warning: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-350 border border-amber-200 dark:border-amber-800/60 shadow-2xs',
     danger: 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 shadow-2xs',
     slate: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-350 border border-slate-200 dark:border-slate-700 shadow-2xs',
+    purple: 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 shadow-2xs',
   };
 
   return (

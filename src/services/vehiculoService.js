@@ -58,6 +58,30 @@ export const vehiculoService = {
       console.error(`Error al obtener vehículos del cliente ${clienteId}:`, error);
       throw error;
     }
+  },
+
+  /**
+   * Crea un nuevo vehículo asociado a un cliente.
+   * POST /vehiculos
+   * 
+   * @param {Object} data - Datos del vehículo (clienteId, placa, marca, modelo, tipo)
+   * @returns {Promise<Object>} Datos del vehículo creado y normalizado.
+   */
+  crearVehiculo: async (data) => {
+    try {
+      const response = await axiosInstance.post('/vehiculos', data);
+      const payload = response.data;
+
+      // Desenvolver si viene con la propiedad 'data'
+      let rawData = payload;
+      if (payload && typeof payload === 'object' && 'data' in payload) {
+        rawData = payload.data;
+      }
+      return rawData;
+    } catch (error) {
+      console.error('Error al crear el vehículo:', error);
+      throw error;
+    }
   }
 };
 
