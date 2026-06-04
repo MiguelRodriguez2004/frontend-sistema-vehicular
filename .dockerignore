@@ -1,0 +1,35 @@
+# Dependencias instaladas localmente por npm
+node_modules
+
+# Archivos de log de npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variables de entorno locales (contienen secretos, no van al contenedor)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Control de versiones
+.git
+.gitignore
+
+# Archivos de Docker (no se necesitan dentro del contenedor)
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Documentación y archivos de configuración locales
+*.md
+.eslintrc*
+eslint.config.js
+
+# Directorio de build (el Stage 1 lo generará desde el código fuente)
+dist
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

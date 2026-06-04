@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------
+  # SERVICIO: frontend
+  # -------------------------------------------------------
+  # Construye la imagen usando el Dockerfile multi-stage y
+  # sirve los assets compilados con Nginx en el puerto 80.
+  #
+  # La variable VITE_API_URL apunta al backend. En un entorno
+  # donde ambos proyectos corren en la misma máquina con
+  # Docker, usamos localhost:3000 (el puerto expuesto del backend).
+  # En un entorno de producción real, aquí iría el dominio
+  # público de la API, ej: https://api.misisteema.com/api
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Este ARG es leído por el Dockerfile durante "npm run build".
+        # Vite inyecta el valor en el bundle estático en tiempo de compilación.
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    container_name: sistema_vehicular_frontend
+    restart: always
+    ports:
+      # Mapeamos el puerto 80 interno de Nginx al puerto 5173 del host.
+      # Usamos 5173 para evitar conflictos con servicios locales en el 80.
+      - "${FRONTEND_PORT:-5173}:80"
