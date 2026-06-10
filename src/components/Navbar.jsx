@@ -1,16 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, User, LogOut, Settings, UserCircle, ChevronDown } from 'lucide-react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 /**
  * Componente Navbar superior desacoplado y reutilizable.
  * Muestra el título de la página actual dinámicamente y posee un menú interactivo
- * de perfil de usuario con acciones rápidas preparadas para autenticación real.
+ * de perfil de usuario con acciones rápidas integradas con Auth0.
  */
 const Navbar = ({ onMenuToggle }) => {
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Hook de Auth0 para consumir la sesión activa del usuario
+  const { user, isAuthenticated, logout } = useAuth0();
+
+  // Datos por defecto por si el usuario no ha iniciado sesión o no está configurado Auth0
+  const displayName = isAuthenticated && user?.name ? user.name : 'Carlos Rodríguez';
+  const displayEmail = isAuthenticated && user?.email ? user.email : 'carlos.taller@trackgarage.com';
+  const displayPicture = isAuthenticated && user?.picture ? user.picture : null;
+  // Intenta extraer el rol si viene en un namespace personalizado de Auth0, o asigna uno por defecto
+  const displayRole = isAuthenticated && user?.['https://sistema-vehicular.com/roles'] 
+    ? user['https://sistema-vehicular.com/roles'][0] 
+    : 'Técnico Principal';
 
   // Función para determinar el título de la vista según la ruta actual
   const getPageTitle = () => {
@@ -31,6 +44,16 @@ const Navbar = ({ onMenuToggle }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleLogout = () => {
+    setDropdownOpen(false);
+    if (isAuthenticated) {
+      // Cierre de sesión real en los servidores de Auth0
+      logout({ logoutParams: { returnTo: window.location.origin } });
+    } else {
+      alert('Cerrar Sesión (Simulado)');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-6 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 shadow-2xs">
@@ -56,21 +79,29 @@ const Navbar = ({ onMenuToggle }) => {
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           type="button"
-          className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/40 border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50 transition-all duration-200 cursor-pointer select-none"
+          className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-5-0 dark:hover:bg-slate-700/40 border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50 transition-all duration-200 cursor-pointer select-none"
         >
           <div className="flex flex-col items-end hidden sm:flex">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-              Carlos Rodríguez
+              {displayName}
             </span>
             <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-              Técnico Principal
+              {displayRole}
             </span>
           </div>
           
-          {/* Avatar */}
-          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200/40 dark:border-blue-800/30 text-blue-600 dark:text-blue-400">
-            <User className="w-4 h-4" />
-          </div>
+          {/* Avatar dinámico o icono por defecto */}
+          {displayPicture ? (
+            <img 
+              src={displayPicture} 
+              alt={displayName} 
+              className="w-9 h-9 rounded-full object-cover border border-blue-250/20 dark:border-blue-800/30" 
+            />
+          ) : (
+            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200/40 dark:border-blue-800/30 text-blue-600 dark:text-blue-400">
+              <User className="w-4 h-4" />
+            </div>
+          )}
 
           <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -80,7 +111,7 @@ const Navbar = ({ onMenuToggle }) => {
           <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 rounded-xl shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-3 duration-200">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700/50">
               <p className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Sesión Activa</p>
-              <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">carlos.taller@trackgarage.com</p>
+              <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">{displayEmail}</p>
             </div>
             
             <div className="p-1 space-y-0.5">
@@ -103,7 +134,7 @@ const Navbar = ({ onMenuToggle }) => {
 
             <div className="p-1 border-t border-slate-100 dark:border-slate-700/50 mt-1">
               <button
-                onClick={() => { setDropdownOpen(false); alert('Cerrar Sesión (Simulado)'); }}
+                onClick={handleLogout}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors text-left cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
@@ -118,3 +149,4 @@ const Navbar = ({ onMenuToggle }) => {
 };
 
 export default Navbar;
+
