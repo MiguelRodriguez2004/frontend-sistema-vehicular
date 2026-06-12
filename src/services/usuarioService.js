@@ -10,9 +10,15 @@ export const usuarioService = {
    *
    * @returns {Promise<Object>} Datos del perfil (id, nombre, email, rol, activo, createdAt).
    */
-  obtenerPerfil: async () => {
+  obtenerPerfil: async (token) => {
     try {
-      const response = await axiosInstance.get('/usuarios/me');
+      const config = {};
+      if (token) {
+        config.headers = {
+          Authorization: `Bearer ${token}`,
+        };
+      }
+      const response = await axiosInstance.get('/usuarios/me', config);
       return response.data?.data ?? response.data;
     } catch (error) {
       console.error('Error al obtener el perfil del usuario:', error);
