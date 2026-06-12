@@ -1,29 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu, User, LogOut, Settings, UserCircle, ChevronDown } from 'lucide-react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { usePerfil } from '../context/PerfilContext';
 
 /**
  * Componente Navbar superior desacoplado y reutilizable.
  * Muestra el título de la página actual dinámicamente y posee un menú interactivo
- * de perfil de usuario con acciones rápidas integradas con Auth0.
+ * de perfil de usuario con acciones rápidas integradas con Auth0 y PerfilContext.
  */
 const Navbar = ({ onMenuToggle }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Hook de Auth0 para consumir la sesión activa del usuario
+  // Hook de Auth0 para la foto de perfil y el logout
   const { user, isAuthenticated, logout } = useAuth0();
+  // Hook del perfil de la DB local para nombre y rol reales
+  const { perfil, isAdmin } = usePerfil();
 
-  // Datos por defecto por si el usuario no ha iniciado sesión o no está configurado Auth0
-  const displayName = isAuthenticated && user?.name ? user.name : 'Carlos Rodríguez';
-  const displayEmail = isAuthenticated && user?.email ? user.email : 'carlos.taller@trackgarage.com';
+  const rolLabels = { ADMIN: 'Administrador', TECNICO: 'Técnico' };
+
+  // Datos del usuario: prioriza el perfil del backend, luego Auth0, luego fallback
+  const displayName = perfil?.nombre || user?.name || 'Usuario';
+  const displayEmail = perfil?.email || user?.email || '';
   const displayPicture = isAuthenticated && user?.picture ? user.picture : null;
-  // Intenta extraer el rol si viene en un namespace personalizado de Auth0, o asigna uno por defecto
-  const displayRole = isAuthenticated && user?.['https://sistema-vehicular.com/roles'] 
-    ? user['https://sistema-vehicular.com/roles'][0] 
-    : 'Técnico Principal';
+  const displayRole = perfil?.rol ? (rolLabels[perfil.rol] || perfil.rol) : 'Usuario';
 
   // Función para determinar el título de la vista según la ruta actual
   const getPageTitle = () => {
@@ -31,6 +34,9 @@ const Navbar = ({ onMenuToggle }) => {
     if (path === '/ordenes') return 'Órdenes de Trabajo';
     if (path === '/ordenes/nueva') return 'Registrar Nueva Orden';
     if (path.startsWith('/ordenes/')) return 'Detalle de Orden';
+    if (path === '/perfil') return 'Mi Perfil';
+    if (path === '/configuracion') return 'Configuración';
+    if (path === '/admin/usuarios') return 'Administración de Usuarios';
     return 'TrackGarage';
   };
 
@@ -116,7 +122,7 @@ const Navbar = ({ onMenuToggle }) => {
             
             <div className="p-1 space-y-0.5">
               <button
-                onClick={() => { setDropdownOpen(false); alert('Ver Perfil (Simulado)'); }}
+                onClick={() => { setDropdownOpen(false); navigate('/perfil'); }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-650 dark:text-slate-300 hover:bg-slate-55 dark:hover:bg-slate-700/60 rounded-lg transition-colors text-left cursor-pointer"
               >
                 <UserCircle className="w-4 h-4 text-slate-400" />
@@ -124,7 +130,7 @@ const Navbar = ({ onMenuToggle }) => {
               </button>
               
               <button
-                onClick={() => { setDropdownOpen(false); alert('Configuración (Simulado)'); }}
+                onClick={() => { setDropdownOpen(false); navigate('/configuracion'); }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-650 dark:text-slate-300 hover:bg-slate-55 dark:hover:bg-slate-700/60 rounded-lg transition-colors text-left cursor-pointer"
               >
                 <Settings className="w-4 h-4 text-slate-400" />

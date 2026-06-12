@@ -4,6 +4,9 @@ import MainLayout from '../layouts/MainLayout';
 import OrdenesPage from '../pages/OrdenesPage';
 import NuevaOrdenPage from '../pages/NuevaOrdenPage';
 import DetalleOrdenPage from '../pages/DetalleOrdenPage';
+import PerfilPage from '../pages/PerfilPage';
+import ConfiguracionPage from '../pages/ConfiguracionPage';
+import AdminUsuariosPage from '../pages/AdminUsuariosPage';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 
 /**
@@ -19,10 +22,17 @@ const AppRouter = () => {
         {/* Redirección automática de la ruta raíz hacia el listado de órdenes */}
         <Route index element={<Navigate to="/ordenes" replace />} />
         
-        {/* Vistas operativas y/o protegidas */}
+        {/* Vistas operativas */}
         <Route path="ordenes" element={<OrdenesPage />} />
         <Route path="ordenes/nueva" element={<NuevaOrdenPage />} />
         <Route path="ordenes/:id" element={<DetalleOrdenPage />} />
+
+        {/* Perfil y Configuración del usuario */}
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="configuracion" element={<ConfiguracionPage />} />
+
+        {/* Administración (solo accesible por ADMIN, protegido en el componente) */}
+        <Route path="admin/usuarios" element={<AdminUsuariosPage />} />
       </Route>
 
       {/* Control de ruta no encontrada - Página 404 estética */}

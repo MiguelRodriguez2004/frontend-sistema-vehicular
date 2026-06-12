@@ -20,6 +20,9 @@ services:
         # Este ARG es leído por el Dockerfile durante "npm run build".
         # Vite inyecta el valor en el bundle estático en tiempo de compilación.
         VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
     container_name: sistema_vehicular_frontend
     restart: always
     ports:
