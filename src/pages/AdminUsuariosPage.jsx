@@ -420,14 +420,22 @@ const AdminUsuariosPage = () => {
                 label="Correo Electrónico"
                 type="email"
                 placeholder="correo@ejemplo.com"
-                required
-                error={errors.email}
-                disabled={modalMode === 'editar'}
+                required={modalMode === 'crear'}
+                error={modalMode === 'crear' ? errors.email : undefined}
+                readOnly={modalMode === 'editar'}
+                className={modalMode === 'editar' ? 'cursor-not-allowed' : ''}
                 {...register('email', {
-                  required: 'El correo es obligatorio.',
-                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Correo no válido.' },
+                  required: modalMode === 'crear' ? 'El correo es obligatorio.' : false,
+                  pattern: modalMode === 'crear'
+                    ? { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Correo no válido.' }
+                    : undefined,
                 })}
               />
+              {modalMode === 'editar' && (
+                <p className="-mt-1 text-[10px] text-slate-400 dark:text-slate-500">
+                  El correo no puede modificarse desde aquí.
+                </p>
+              )}
 
               {/* Contraseña (solo crear) */}
               {modalMode === 'crear' && (

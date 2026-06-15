@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { ArrowLeft, Save, LogOut, User, Shield } from 'lucide-react';
 import Swal from 'sweetalert2';
+import Input from '../components/ui/Input';
 import usuarioService from '../services/usuarioService';
 import { useAuth } from '../context/AuthContext';
 
@@ -155,29 +156,19 @@ const ConfiguracionPage = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Campo: Nombre */}
-          <div>
-            <label htmlFor="nombre" className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-              Nombre Completo
-            </label>
-            <input
-              id="nombre"
-              type="text"
-              {...register('nombre', {
-                required: 'El nombre es obligatorio.',
-                minLength: { value: 2, message: 'El nombre debe tener al menos 2 caracteres.' },
-                maxLength: { value: 100, message: 'El nombre no puede exceder 100 caracteres.' },
-              })}
-              className={`w-full px-4 py-2.5 text-sm font-medium bg-slate-50 dark:bg-slate-750 border rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 ${
-                errors.nombre
-                  ? 'border-rose-300 dark:border-rose-700'
-                  : 'border-slate-200 dark:border-slate-700'
-              }`}
-              placeholder="Tu nombre completo"
-            />
-            {errors.nombre && (
-              <p className="mt-1 text-xs font-medium text-rose-500">{errors.nombre.message}</p>
-            )}
-          </div>
+          <Input
+            id="nombre"
+            label="Nombre Completo"
+            type="text"
+            placeholder="Tu nombre completo"
+            required
+            error={errors.nombre}
+            {...register('nombre', {
+              required: 'El nombre es obligatorio.',
+              minLength: { value: 2, message: 'El nombre debe tener al menos 2 caracteres.' },
+              maxLength: { value: 100, message: 'El nombre no puede exceder 100 caracteres.' },
+            })}
+          />
 
           {/* Campo: Email (solo lectura) */}
           <div>
