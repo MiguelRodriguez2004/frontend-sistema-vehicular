@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu, User, LogOut, Settings, UserCircle, ChevronDown } from 'lucide-react';
-import { useAuth0 } from '@auth0/auth0-react';
 import { usePerfil } from '../context/PerfilContext';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Componente Navbar superior desacoplado y reutilizable.
  * Muestra el título de la página actual dinámicamente y posee un menú interactivo
- * de perfil de usuario con acciones rápidas integradas con Auth0 y PerfilContext.
+ * de perfil de usuario con acciones rápidas integradas con PerfilContext.
  */
 const Navbar = ({ onMenuToggle }) => {
   const location = useLocation();
@@ -15,17 +15,14 @@ const Navbar = ({ onMenuToggle }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Hook de Auth0 para la foto de perfil y el logout
-  const { user, isAuthenticated, logout } = useAuth0();
-  // Hook del perfil de la DB local para nombre y rol reales
+  const { logout } = useAuth();
   const { perfil, isAdmin } = usePerfil();
 
   const rolLabels = { ADMIN: 'Administrador', TECNICO: 'Técnico' };
 
-  // Datos del usuario: prioriza el perfil del backend, luego Auth0, luego fallback
-  const displayName = perfil?.nombre || user?.name || 'Usuario';
-  const displayEmail = perfil?.email || user?.email || '';
-  const displayPicture = isAuthenticated && user?.picture ? user.picture : null;
+  // Datos del usuario
+  const displayName = perfil?.nombre || 'Usuario';
+  const displayEmail = perfil?.email || '';
   const displayRole = perfil?.rol ? (rolLabels[perfil.rol] || perfil.rol) : 'Usuario';
 
   // Función para determinar el título de la vista según la ruta actual
@@ -53,12 +50,7 @@ const Navbar = ({ onMenuToggle }) => {
 
   const handleLogout = () => {
     setDropdownOpen(false);
-    if (isAuthenticated) {
-      // Cierre de sesión real en los servidores de Auth0
-      logout({ logoutParams: { returnTo: window.location.origin } });
-    } else {
-      alert('Cerrar Sesión (Simulado)');
-    }
+    logout();
   };
 
   return (
@@ -96,18 +88,9 @@ const Navbar = ({ onMenuToggle }) => {
             </span>
           </div>
           
-          {/* Avatar dinámico o icono por defecto */}
-          {displayPicture ? (
-            <img 
-              src={displayPicture} 
-              alt={displayName} 
-              className="w-9 h-9 rounded-full object-cover border border-blue-250/20 dark:border-blue-800/30" 
-            />
-          ) : (
-            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200/40 dark:border-blue-800/30 text-blue-600 dark:text-blue-400">
-              <User className="w-4 h-4" />
-            </div>
-          )}
+          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200/40 dark:border-blue-800/30 text-blue-600 dark:text-blue-400">
+            <User className="w-4 h-4" />
+          </div>
 
           <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
         </button>

@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
   Users, Plus, Search, Edit3, Power, ArrowLeft,
-  Shield, User, Mail, Calendar, X, Save, Loader2,
+  Shield, Save, Loader2, X
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import adminService from '../services/adminService';
 import { usePerfil } from '../context/PerfilContext';
+import Input from '../components/ui/Input';
 
 /**
  * Página de Administración de Usuarios.
@@ -358,68 +359,67 @@ const AdminUsuariosPage = () => {
             {/* Formulario */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Nombre */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                  Nombre Completo
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    {...register('nombre', {
-                      required: 'El nombre es obligatorio.',
-                      minLength: { value: 2, message: 'Mínimo 2 caracteres.' },
-                    })}
-                    className={`w-full pl-10 pr-4 py-2.5 text-sm font-medium bg-slate-50 dark:bg-slate-750 border rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 ${
-                      errors.nombre ? 'border-rose-300 dark:border-rose-700' : 'border-slate-200 dark:border-slate-700'
-                    }`}
-                    placeholder="Nombre completo del usuario"
-                  />
-                </div>
-                {errors.nombre && <p className="mt-1 text-xs font-medium text-rose-500">{errors.nombre.message}</p>}
-              </div>
+              <Input
+                label="Nombre Completo"
+                placeholder="Nombre completo del usuario"
+                required
+                error={errors.nombre}
+                {...register('nombre', {
+                  required: 'El nombre es obligatorio.',
+                  minLength: { value: 2, message: 'Mínimo 2 caracteres.' },
+                })}
+              />
 
               {/* Email */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                  Correo Electrónico
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="email"
-                    {...register('email', {
-                      required: 'El correo es obligatorio.',
-                      pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Correo no válido.' },
-                    })}
-                    disabled={modalMode === 'editar'}
-                    className={`w-full pl-10 pr-4 py-2.5 text-sm font-medium bg-slate-50 dark:bg-slate-750 border rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 ${
-                      modalMode === 'editar' ? 'cursor-not-allowed text-slate-400' : ''
-                    } ${errors.email ? 'border-rose-300 dark:border-rose-700' : 'border-slate-200 dark:border-slate-700'}`}
-                    placeholder="correo@ejemplo.com"
-                  />
-                </div>
-                {errors.email && <p className="mt-1 text-xs font-medium text-rose-500">{errors.email.message}</p>}
-                {modalMode === 'crear' && (
-                  <p className="mt-1 text-[10px] text-slate-400">Se le enviará un correo para configurar su contraseña.</p>
-                )}
-              </div>
+              <Input
+                label="Correo Electrónico"
+                type="email"
+                placeholder="correo@ejemplo.com"
+                required
+                error={errors.email}
+                disabled={modalMode === 'editar'}
+                {...register('email', {
+                  required: 'El correo es obligatorio.',
+                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Correo no válido.' },
+                })}
+              />
+
+              {/* Contraseña (solo crear) */}
+              {modalMode === 'crear' && (
+                <Input
+                  label="Contraseña Provisional"
+                  type="password"
+                  placeholder="Contraseña del usuario"
+                  required
+                  error={errors.password}
+                  {...register('password', {
+                    required: 'La contraseña es obligatoria.',
+                    minLength: { value: 6, message: 'Mínimo 6 caracteres.' },
+                  })}
+                />
+              )}
 
               {/* Rol */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                  Rol en el Sistema
+              <div className="flex flex-col gap-1.5 w-full">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Rol en el Sistema <span className="text-rose-500">*</span>
                 </label>
-                <div className="relative">
-                  <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select
-                    {...register('rol', { required: 'El rol es obligatorio.' })}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer appearance-none"
-                  >
-                    <option value="TECNICO">Técnico</option>
-                    <option value="ADMIN">Administrador</option>
-                  </select>
-                </div>
+                <select
+                  {...register('rol', { required: 'El rol es obligatorio.' })}
+                  className={`w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-all duration-200 cursor-pointer ${
+                    errors.rol 
+                      ? 'border-rose-500 focus:ring-rose-500/30 focus:border-rose-500' 
+                      : 'border-slate-300 dark:border-slate-600 focus:ring-blue-500/30 focus:border-blue-500'
+                  }`}
+                >
+                  <option value="TECNICO">Técnico</option>
+                  <option value="ADMIN">Administrador</option>
+                </select>
+                {errors.rol && (
+                  <span className="text-xs font-medium text-rose-500">
+                    {errors.rol.message}
+                  </span>
+                )}
               </div>
 
               {/* Botones del modal */}

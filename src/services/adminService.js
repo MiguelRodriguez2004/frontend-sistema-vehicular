@@ -24,7 +24,7 @@ export const adminService = {
   },
 
   /**
-   * Crea un nuevo usuario en Auth0 y en la base de datos local.
+   * Crea un nuevo usuario en la base de datos local.
    * POST /admin/users
    * @param {Object} data - { nombre, email, rol }
    */

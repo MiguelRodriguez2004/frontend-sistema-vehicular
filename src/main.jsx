@@ -3,14 +3,14 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import Auth0ProviderWithHistory from './context/Auth0ProviderWithHistory.jsx'
+import { AuthProvider } from './context/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <Auth0ProviderWithHistory>
+      <AuthProvider>
         <App />
-      </Auth0ProviderWithHistory>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 )

@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Shield, Calendar, ArrowLeft, Settings } from 'lucide-react';
 import usuarioService from '../services/usuarioService';
 
 /**
  * Página "Mi Perfil".
- * Muestra los datos del usuario autenticado combinando la información
- * de Auth0 (foto de perfil) con la de la base de datos del backend
+ * Muestra los datos del usuario autenticado
  * (nombre, email, rol, estado, fecha de registro).
  */
 const PerfilPage = () => {
-  const { user: auth0User, isAuthenticated } = useAuth0();
   const navigate = useNavigate();
 
   const [perfil, setPerfil] = useState(null);
@@ -32,10 +29,8 @@ const PerfilPage = () => {
       }
     };
 
-    if (isAuthenticated) {
-      cargarPerfil();
-    }
-  }, [isAuthenticated]);
+    cargarPerfil();
+  }, []);
 
   if (loading) {
     return (
@@ -87,17 +82,9 @@ const PerfilPage = () => {
         {/* Banner + Avatar */}
         <div className="relative h-28 bg-gradient-to-r from-blue-600 to-indigo-600">
           <div className="absolute -bottom-10 left-6">
-            {auth0User?.picture ? (
-              <img
-                src={auth0User.picture}
-                alt={perfil?.nombre}
-                className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 object-cover shadow-md"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shadow-md">
-                <User className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-            )}
+            <div className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shadow-md">
+              <User className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
           </div>
         </div>
 

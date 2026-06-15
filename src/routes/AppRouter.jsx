@@ -7,16 +7,21 @@ import DetalleOrdenPage from '../pages/DetalleOrdenPage';
 import PerfilPage from '../pages/PerfilPage';
 import ConfiguracionPage from '../pages/ConfiguracionPage';
 import AdminUsuariosPage from '../pages/AdminUsuariosPage';
+import LoginPage from '../pages/LoginPage';
+import ResetPasswordPage from '../pages/ResetPasswordPage';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 
 /**
  * Enrutador principal de la aplicación.
  * Define la estructura de rutas anidadas bajo el layout principal y maneja redirecciones.
- * Nota: El componente BrowserRouter se movió a main.jsx para permitir el uso de react-router en Auth0Provider.
  */
 const AppRouter = () => {
   return (
     <Routes>
+      {/* Ruta de autenticación */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+
       {/* Rutas base protegidas por el layout principal */}
       <Route path="/" element={<ProtectedRoute component={MainLayout} />}>
         {/* Redirección automática de la ruta raíz hacia el listado de órdenes */}

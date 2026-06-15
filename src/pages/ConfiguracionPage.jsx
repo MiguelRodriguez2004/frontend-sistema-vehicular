@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Save, LogOut, User, Shield, Info } from 'lucide-react';
+import { ArrowLeft, Save, LogOut, User, Shield } from 'lucide-react';
 import Swal from 'sweetalert2';
 import usuarioService from '../services/usuarioService';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Página "Configuración".
  * Permite al usuario editar su nombre (usando react-hook-form),
- * cerrar su sesión de Auth0 y ver información de su cuenta.
+ * cerrar su sesión y ver información de su cuenta.
  */
 const ConfiguracionPage = () => {
-  const { user: auth0User, isAuthenticated, logout } = useAuth0();
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,10 +41,8 @@ const ConfiguracionPage = () => {
       }
     };
 
-    if (isAuthenticated) {
-      cargarPerfil();
-    }
-  }, [isAuthenticated, reset]);
+    cargarPerfil();
+  }, [reset]);
 
   /**
    * Guarda los cambios del formulario en el backend via PATCH /api/usuarios/me.
@@ -96,7 +94,7 @@ const ConfiguracionPage = () => {
     });
 
     if (result.isConfirmed) {
-      logout({ logoutParams: { returnTo: window.location.origin } });
+      logout();
     }
   };
 
@@ -178,7 +176,7 @@ const ConfiguracionPage = () => {
               className="w-full px-4 py-2.5 text-sm font-medium bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 cursor-not-allowed"
             />
             <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
-              El correo electrónico está gestionado por Auth0 y no puede modificarse desde aquí.
+              El correo electrónico no puede modificarse desde aquí.
             </p>
           </div>
 
@@ -225,41 +223,7 @@ const ConfiguracionPage = () => {
         </form>
       </div>
 
-      {/* Sección 2: Información de la Cuenta Auth0 */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/50 rounded-2xl shadow-sm p-6 mb-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-            <Info className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-          </div>
-          <h2 className="text-sm font-bold text-slate-800 dark:text-white">Cuenta de Auth0</h2>
-        </div>
-
-        <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-100 dark:border-slate-700/40">
-          {auth0User?.picture ? (
-            <img
-              src={auth0User.picture}
-              alt={auth0User.name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-slate-200 dark:border-slate-700"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <User className="w-5 h-5 text-blue-600" />
-            </div>
-          )}
-          <div>
-            <p className="text-sm font-bold text-slate-800 dark:text-white">{auth0User?.name || 'Usuario'}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{auth0User?.email || ''}</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Proveedor: {auth0User?.sub?.split('|')[0] || 'auth0'}</p>
-          </div>
-        </div>
-
-        <p className="mt-3 text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-          Tu foto de perfil y correo electrónico son gestionados por tu proveedor de identidad a través de Auth0.
-          Para cambiar tu foto o contraseña, accede a la configuración de tu proveedor (Google, GitHub, etc.).
-        </p>
-      </div>
-
-      {/* Sección 3: Cerrar Sesión */}
+      {/* Sección 2: Cerrar Sesión */}
       <div className="bg-white dark:bg-slate-800 border border-rose-200/50 dark:border-rose-800/30 rounded-2xl shadow-sm p-6">
         <div className="flex items-center gap-2 mb-3">
           <div className="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg">
@@ -269,7 +233,7 @@ const ConfiguracionPage = () => {
         </div>
 
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-          Al cerrar sesión, serás desconectado del sistema y redirigido a la pantalla de inicio de sesión de Auth0.
+          Al cerrar sesión, serás desconectado del sistema y redirigido a la pantalla de inicio de sesión.
           Tus datos y configuraciones se mantendrán intactos para cuando vuelvas a iniciar sesión.
         </p>
 

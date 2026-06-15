@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
 import { ShieldAlert, LogOut, Mail, Loader2 } from 'lucide-react';
 import usuarioService from '../services/usuarioService';
+import { useAuth } from './AuthContext';
 
 /**
  * Contexto global del perfil del usuario autenticado.
@@ -12,7 +12,7 @@ import usuarioService from '../services/usuarioService';
 const PerfilContext = createContext(null);
 
 export const PerfilProvider = ({ children }) => {
-  const { isAuthenticated, isLoading: auth0Loading, user, logout, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, logout } = useAuth();
 
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,15 +25,8 @@ export const PerfilProvider = ({ children }) => {
       setError(null);
       setErrorType(null);
 
-      // Obtener el token directamente antes de la petición para evitar condiciones de carrera con el interceptor de Axios
-      let token = null;
-      try {
-        token = await getAccessTokenSilently();
-      } catch (tokenErr) {
-        console.warn("No se pudo obtener el token de acceso de Auth0 de forma silenciosa:", tokenErr);
-      }
-
-      const data = await usuarioService.obtenerPerfil(token);
+      // El AxiosInterceptor inyectará el token del localStorage automáticamente.
+      const data = await usuarioService.obtenerPerfil();
       setPerfil(data);
     } catch (err) {
       console.error('Error cargando perfil del usuario:', err);
@@ -52,6 +45,7 @@ export const PerfilProvider = ({ children }) => {
       } else if (status === 401) {
         setError('Sesión no válida o expirada. Vuelve a iniciar sesión.');
         setErrorType('other');
+        logout(); // Cerrar sesión automáticamente en el cliente
       } else {
         setError('Error al cargar tu perfil. Intenta de nuevo más tarde.');
         setErrorType('other');
@@ -62,12 +56,13 @@ export const PerfilProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!auth0Loading && isAuthenticated) {
+    if (isAuthenticated) {
       cargarPerfil();
-    } else if (!auth0Loading && !isAuthenticated) {
+    } else {
       setLoading(false);
+      setPerfil(null);
     }
-  }, [isAuthenticated, auth0Loading]);
+  }, [isAuthenticated]);
 
   const isAdmin = perfil?.rol === 'ADMIN';
 
@@ -125,17 +120,12 @@ export const PerfilProvider = ({ children }) => {
             {mensaje}
           </p>
 
-          <div className="flex items-center gap-2 justify-center px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl mb-6 text-xs text-slate-500 dark:text-slate-400 font-mono">
-            <Mail className="w-3.5 h-3.5" />
-            <span>{user?.email}</span>
-          </div>
-
           <p className="text-xs text-slate-400 dark:text-slate-500 mb-6 leading-relaxed">
             {descripcion}
           </p>
 
           <button
-            onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+            onClick={() => logout()}
             className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl shadow-md transition-all duration-200 cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
@@ -162,3 +152,4 @@ export const usePerfil = () => {
 };
 
 export default PerfilContext;
+
