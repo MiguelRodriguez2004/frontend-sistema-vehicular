@@ -24,6 +24,11 @@ const SERVICE_TYPES = [
  * @param {Function} props.setTipoServicio - Setter para el tipo de servicio.
  * @param {string} props.diagnostico - Texto de diagnóstico.
  * @param {Function} props.setDiagnostico - Setter para el diagnóstico.
+ * @param {string|number} props.tecnicoId - ID del técnico seleccionado.
+ * @param {Function} props.setTecnicoId - Setter para el ID del técnico.
+ * @param {Array} props.tecnicos - Lista de técnicos disponibles.
+ * @param {Object} props.perfil - Perfil del usuario actual.
+ * @param {boolean} props.isAdmin - Indicador de si el usuario es administrador.
  * @param {Object} props.errors - Objeto que contiene los errores de validación inline.
  * @param {boolean} props.isSaving - Estado de carga al crear la orden.
  * @param {Function} props.onSubmit - Manejador del submit de la orden.
@@ -37,6 +42,11 @@ export const OrdenFormSection = ({
   setTipoServicio,
   diagnostico,
   setDiagnostico,
+  tecnicoId,
+  setTecnicoId,
+  tecnicos = [],
+  perfil,
+  isAdmin,
   errors = {},
   isSaving = false,
   onSubmit
@@ -138,22 +148,41 @@ export const OrdenFormSection = ({
             )}
           </div>
 
-          {/* ========================================================================= */}
-          {/* ESTRUCTURA Y COMENTARIOS PREPARADOS PARA FUTURO DESARROLLO */}
-          {/* ========================================================================= */}
-          {/* 
-            Integración planificada:
-            1. AuthContext:
-               Para ligar el tecnicoId dinámico desde el usuario autenticado (ej. useAuth().user.id).
-            2. Técnico Asignado Visual:
-               Pintar avatar y credenciales del técnico que está creando la orden para dar mayor transparencia.
-            3. Registro Multimedia:
-               Sección de carga de fotos iniciales del vehículo al ingresar (opcional, sin websockets o realtime por ahora).
-          */}
-          <div className="flex items-center gap-2 p-3 bg-slate-50/50 dark:bg-slate-900/10 rounded-xl border border-slate-150 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 select-none">
-            <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0" />
-            <span>Técnico Supervisor asignado por defecto (Tec. Central).</span>
+          {/* Campo Técnico Asignado */}
+          <div className="flex flex-col gap-1.5 w-full">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Técnico Asignado *
+            </label>
+            {isAdmin ? (
+              <select
+                value={tecnicoId}
+                onChange={(e) => setTecnicoId(e.target.value)}
+                disabled={isSaving || tecnicos.length === 0}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {tecnicos.length === 0 ? (
+                  <option value="">Cargando técnicos...</option>
+                ) : (
+                  tecnicos.map((tec) => (
+                    <option key={tec.id} value={tec.id}>
+                      {tec.nombre}
+                    </option>
+                  ))
+                )}
+              </select>
+            ) : (
+              <div className="w-full px-3 py-2 text-sm bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 cursor-not-allowed flex items-center">
+                {perfil?.nombre || 'Cargando tu perfil...'}
+              </div>
+            )}
+            {!isAdmin && (
+              <div className="flex items-center gap-2 mt-1 px-1 text-[11px] text-slate-500 dark:text-slate-400 select-none">
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <span>Asignado automáticamente a tu cuenta.</span>
+              </div>
+            )}
           </div>
+
         </CardBody>
       </div>
 
