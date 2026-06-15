@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
+import DashboardPage from '../pages/DashboardPage';
 import OrdenesPage from '../pages/OrdenesPage';
 import NuevaOrdenPage from '../pages/NuevaOrdenPage';
 import DetalleOrdenPage from '../pages/DetalleOrdenPage';
@@ -24,9 +25,12 @@ const AppRouter = () => {
 
       {/* Rutas base protegidas por el layout principal */}
       <Route path="/" element={<ProtectedRoute component={MainLayout} />}>
-        {/* Redirección automática de la ruta raíz hacia el listado de órdenes */}
-        <Route index element={<Navigate to="/ordenes" replace />} />
-        
+        {/* Redirección automática de la ruta raíz hacia el dashboard */}
+        <Route index element={<Navigate to="/dashboard" replace />} />
+
+        {/* Dashboard principal (primera vista tras login) */}
+        <Route path="dashboard" element={<DashboardPage />} />
+
         {/* Vistas operativas */}
         <Route path="ordenes" element={<OrdenesPage />} />
         <Route path="ordenes/nueva" element={<NuevaOrdenPage />} />

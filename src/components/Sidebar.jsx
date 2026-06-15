@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { ClipboardList, PlusCircle, Wrench, X, Settings, Users } from 'lucide-react';
+import { ClipboardList, PlusCircle, Wrench, X, Settings, Users, LayoutDashboard } from 'lucide-react';
 import { usePerfil } from '../context/PerfilContext';
 
 /**
@@ -10,6 +10,12 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { isAdmin } = usePerfil();
 
   const links = [
+    {
+      to: '/dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      end: true
+    },
     {
       to: '/ordenes',
       label: 'Órdenes de Trabajo',
