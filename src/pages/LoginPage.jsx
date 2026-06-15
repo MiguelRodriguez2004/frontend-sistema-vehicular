@@ -3,6 +3,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Car, Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import logoImg from '../assets/logo.png';
 
 /**
  * Página de Inicio de Sesión (Login)
@@ -22,7 +23,7 @@ const LoginPage = () => {
 
   // Si ya está autenticado, no debería ver el login
   if (isAuthenticated) {
-    return <Navigate to="/ordenes" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const onSubmit = async (data) => {
@@ -31,7 +32,7 @@ const LoginPage = () => {
       setErrorMsg(null);
       await login(data.email, data.password);
       // Redireccionar al inicio tras login exitoso
-      navigate('/ordenes', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Error en login:', error);
       const backendError = error.response?.data?.message || error.response?.data?.error || 'Credenciales inválidas o error de conexión.';
@@ -53,13 +54,8 @@ const LoginPage = () => {
           
           {/* Header */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 mb-4 transform transition hover:scale-105">
-              <Car className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent text-center">
-              TrackGarage
-            </h1>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2 text-center">
+            <img src={logoImg} alt="TrackGarage Logo" className="h-12 object-contain mb-3" />
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 text-center">
               Sistema de Gestión Vehicular
             </p>
           </div>

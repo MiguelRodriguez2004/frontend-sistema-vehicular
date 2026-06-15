@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { ClipboardList, PlusCircle, Wrench, X, Settings, Users, LayoutDashboard } from 'lucide-react';
 import { usePerfil } from '../context/PerfilContext';
+import logoImg from '../assets/logo.png';
 
 /**
  * Componente Sidebar desacoplado y reutilizable para navegación.
@@ -64,13 +65,8 @@ const Sidebar = ({ isOpen, onClose }) => {
       >
         {/* Cabecera / Branding */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg">
-              <Wrench className="w-5 h-5" />
-            </div>
-            <span className="text-lg font-black tracking-tight text-white">
-              Track<span className="text-blue-500">Garage</span>
-            </span>
+          <div className="flex items-center">
+            <img src={logoImg} alt="TrackGarage Logo" className="h-8 object-contain" />
           </div>
           {/* Botón de cerrar para pantallas móviles */}
           <button

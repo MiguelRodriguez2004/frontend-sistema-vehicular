@@ -38,7 +38,7 @@ const AdminUsuariosPage = () => {
   // Redirigir si no es admin
   useEffect(() => {
     if (!isAdmin) {
-      navigate('/ordenes', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [isAdmin, navigate]);
 

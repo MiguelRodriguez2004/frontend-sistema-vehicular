@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     if (data && data.token) {
       setToken(data.token);
       localStorage.setItem('token', data.token);
-      navigate('/ordenes', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   };
 

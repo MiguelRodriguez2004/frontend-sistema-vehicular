@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import Input from '../components/ui/Input';
 import usuarioService from '../services/usuarioService';
 import { useAuth } from '../context/AuthContext';
+import { usePerfil } from '../context/PerfilContext';
 
 /**
  * Página "Configuración".
@@ -15,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 const ConfiguracionPage = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { refrescarPerfil } = usePerfil();
 
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +56,8 @@ const ConfiguracionPage = () => {
       const actualizado = await usuarioService.actualizarPerfil({ nombre: data.nombre });
       setPerfil(actualizado);
       reset({ nombre: actualizado.nombre });
+      // Actualizar el contexto global para que el Navbar refleje el nuevo nombre
+      await refrescarPerfil();
 
       Swal.fire({
         toast: true,
