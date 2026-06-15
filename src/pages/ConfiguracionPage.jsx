@@ -54,24 +54,36 @@ const ConfiguracionPage = () => {
       setPerfil(actualizado);
       reset({ nombre: actualizado.nombre });
 
-      await Swal.fire({
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
         icon: 'success',
-        title: '¡Perfil Actualizado!',
-        text: 'Tu nombre se ha actualizado correctamente.',
-        confirmButtonColor: '#2563eb',
+        title: '¡Perfil actualizado con éxito!',
+        showConfirmButton: false,
         timer: 2500,
         timerProgressBar: true,
+        background: '#1e293b',
+        color: '#f8fafc',
+        iconColor: '#3b82f6',
+        customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
       });
     } catch (err) {
       console.error('Error guardando perfil:', err);
 
       const backendMsg = err.response?.data?.message || err.response?.data?.error;
 
-      await Swal.fire({
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
         icon: 'error',
-        title: 'Error al Guardar',
-        text: backendMsg || 'No se pudo actualizar tu perfil. Intenta de nuevo.',
-        confirmButtonColor: '#e11d48',
+        title: backendMsg || 'No se pudo actualizar tu perfil. Intenta de nuevo.',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        background: '#1e293b',
+        color: '#f8fafc',
+        iconColor: '#ef4444',
+        customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
       });
     } finally {
       setSaving(false);
@@ -91,6 +103,9 @@ const ConfiguracionPage = () => {
       cancelButtonColor: '#64748b',
       confirmButtonText: 'Sí, Cerrar Sesión',
       cancelButtonText: 'Cancelar',
+      background: '#1e293b',
+      color: '#f8fafc',
+      customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
     });
 
     if (result.isConfirmed) {

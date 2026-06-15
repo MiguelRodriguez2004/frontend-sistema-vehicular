@@ -51,10 +51,17 @@ const AdminUsuariosPage = () => {
     } catch (err) {
       console.error('Error cargando usuarios:', err);
       Swal.fire({
+        toast: true,
+        position: 'top-end',
         icon: 'error',
-        title: 'Error',
-        text: 'No se pudieron cargar los usuarios.',
-        confirmButtonColor: '#2563eb',
+        title: 'No se pudieron cargar los usuarios.',
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+        background: '#1e293b',
+        color: '#f8fafc',
+        iconColor: '#ef4444',
+        customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
       });
     } finally {
       setLoading(false);
@@ -99,23 +106,33 @@ const AdminUsuariosPage = () => {
 
       if (modalMode === 'crear') {
         const result = await adminService.crearUsuario(data);
-        await Swal.fire({
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
           icon: 'success',
-          title: '¡Usuario Creado!',
-          text: result.message || 'El usuario fue creado exitosamente.',
-          confirmButtonColor: '#2563eb',
+          title: '¡Usuario creado con éxito!',
+          showConfirmButton: false,
           timer: 3000,
           timerProgressBar: true,
+          background: '#1e293b',
+          color: '#f8fafc',
+          iconColor: '#3b82f6',
+          customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
         });
       } else {
         await adminService.actualizarUsuario(editingUser.id, data);
-        await Swal.fire({
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
           icon: 'success',
-          title: '¡Usuario Actualizado!',
-          text: 'Los datos del usuario se actualizaron correctamente.',
-          confirmButtonColor: '#2563eb',
-          timer: 2500,
+          title: '¡Usuario actualizado correctamente!',
+          showConfirmButton: false,
+          timer: 3000,
           timerProgressBar: true,
+          background: '#1e293b',
+          color: '#f8fafc',
+          iconColor: '#3b82f6',
+          customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
         });
       }
 
@@ -125,10 +142,17 @@ const AdminUsuariosPage = () => {
       console.error('Error guardando usuario:', err);
       const msg = err.response?.data?.message || 'Error procesando la solicitud.';
       Swal.fire({
+        toast: true,
+        position: 'top-end',
         icon: 'error',
-        title: 'Error',
-        text: msg,
-        confirmButtonColor: '#e11d48',
+        title: msg,
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        background: '#1e293b',
+        color: '#f8fafc',
+        iconColor: '#ef4444',
+        customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
       });
     } finally {
       setSaving(false);
@@ -140,7 +164,7 @@ const AdminUsuariosPage = () => {
     const accion = usuario.activo ? 'desactivar' : 'activar';
 
     const result = await Swal.fire({
-      title: `¿${usuario.activo ? 'Desactivar' : 'Activar'} Usuario?`,
+      title: `¿${usuario.activo ? 'Desactivar' : 'Activar'} usuario?`,
       html: `<p class="text-sm">Se ${accion}á la cuenta de <strong>${usuario.nombre}</strong> (${usuario.email}).</p>`,
       icon: 'question',
       showCancelButton: true,
@@ -148,23 +172,44 @@ const AdminUsuariosPage = () => {
       cancelButtonColor: '#64748b',
       confirmButtonText: `Sí, ${accion}`,
       cancelButtonText: 'Cancelar',
+      background: '#1e293b',
+      color: '#f8fafc',
+      customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
     });
 
     if (result.isConfirmed) {
       try {
         await adminService.cambiarEstado(usuario.id, !usuario.activo);
         Swal.fire({
+          toast: true,
+          position: 'top-end',
           icon: 'success',
-          title: `Usuario ${!usuario.activo ? 'Activado' : 'Desactivado'}`,
-          timer: 2000,
+          title: `Usuario ${!usuario.activo ? 'activado' : 'desactivado'} con éxito`,
+          showConfirmButton: false,
+          timer: 2500,
           timerProgressBar: true,
-          confirmButtonColor: '#2563eb',
+          background: '#1e293b',
+          color: '#f8fafc',
+          iconColor: '#3b82f6',
+          customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
         });
         cargarUsuarios();
       } catch (err) {
         console.error('Error cambiando estado:', err);
         const msg = err.response?.data?.message || 'No se pudo cambiar el estado.';
-        Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#e11d48' });
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: msg,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          background: '#1e293b',
+          color: '#f8fafc',
+          iconColor: '#ef4444',
+          customClass: { popup: 'rounded-xl border border-slate-700/60 shadow-lg' }
+        });
       }
     }
   };
