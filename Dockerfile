@@ -24,10 +24,20 @@ COPY . .
 
 # Compilamos la app con Vite. El resultado son archivos
 # HTML, CSS y JS estáticos optimizados en la carpeta /app/dist.
-# La variable VITE_API_URL se inyecta en tiempo de build para que
-# el bundle final conozca la URL del backend.
+# Las variables VITE_ se inyectan en tiempo de build para que
+# el bundle final conozca las configuraciones de la API y Auth0.
 ARG VITE_API_URL=http://localhost:3000/api
 ENV VITE_API_URL=$VITE_API_URL
+
+ARG VITE_AUTH0_DOMAIN
+ENV VITE_AUTH0_DOMAIN=$VITE_AUTH0_DOMAIN
+
+ARG VITE_AUTH0_CLIENT_ID
+ENV VITE_AUTH0_CLIENT_ID=$VITE_AUTH0_CLIENT_ID
+
+ARG VITE_AUTH0_AUDIENCE
+ENV VITE_AUTH0_AUDIENCE=$VITE_AUTH0_AUDIENCE
+
 RUN npm run build
 
 # =====================================================

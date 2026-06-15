@@ -1,11 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { ClipboardList, PlusCircle, Wrench, X } from 'lucide-react';
+import { ClipboardList, PlusCircle, Wrench, X, Settings, Users } from 'lucide-react';
+import { usePerfil } from '../context/PerfilContext';
 
 /**
  * Componente Sidebar desacoplado y reutilizable para navegación.
  */
 const Sidebar = ({ isOpen, onClose }) => {
+  const { isAdmin } = usePerfil();
+
   const links = [
     {
       to: '/ordenes',
@@ -18,8 +21,24 @@ const Sidebar = ({ isOpen, onClose }) => {
       label: 'Nueva Orden',
       icon: PlusCircle,
       end: false
-    }
+    },
+    {
+      to: '/configuracion',
+      label: 'Configuración',
+      icon: Settings,
+      end: false
+    },
   ];
+
+  // Solo mostrar la sección de administración si el usuario es ADMIN
+  if (isAdmin) {
+    links.push({
+      to: '/admin/usuarios',
+      label: 'Administrar Usuarios',
+      icon: Users,
+      end: false,
+    });
+  }
 
   return (
     <>

@@ -14,6 +14,8 @@ import VehiculoSkeleton from '../components/vehiculos/VehiculoSkeleton';
 import VehiculoEmptyState from '../components/vehiculos/VehiculoEmptyState';
 import CreateVehiculoModal from '../components/vehiculos/CreateVehiculoModal';
 import ordenService from '../services/ordenService';
+import adminService from '../services/adminService';
+import { usePerfil } from '../context/PerfilContext';
 import OrdenFormSection from '../components/ordenes/OrdenFormSection';
 
 // Clientes iniciales para simulación de búsqueda
@@ -60,6 +62,32 @@ const NuevaOrdenPage = () => {
   const [diagnostico, setDiagnostico] = useState('');
   const [isSavingOrden, setIsSavingOrden] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Contexto y Técnicos
+  const { perfil, isAdmin } = usePerfil();
+  const [tecnicos, setTecnicos] = useState([]);
+  const [tecnicoId, setTecnicoId] = useState('');
+
+  // Cargar técnicos si es administrador, o asignar el técnico actual
+  useEffect(() => {
+    if (isAdmin) {
+      const fetchTecnicos = async () => {
+        try {
+          const users = await adminService.listarUsuarios();
+          const soloTecnicos = users.filter(u => u.rol === 'TECNICO' && u.activo !== false);
+          setTecnicos(soloTecnicos);
+          if (soloTecnicos.length > 0) {
+            setTecnicoId(soloTecnicos[0].id);
+          }
+        } catch (err) {
+          console.error('Error al cargar técnicos:', err);
+        }
+      };
+      fetchTecnicos();
+    } else if (perfil) {
+      setTecnicoId(perfil.id);
+    }
+  }, [isAdmin, perfil]);
 
   // Referencia para focus visual automático de vehículos
   const vehiculoSeccionRef = useRef(null);
@@ -337,7 +365,7 @@ const NuevaOrdenPage = () => {
     try {
       const payload = {
         vehiculoId: Number(vehiculoSeleccionado.id),
-        tecnicoId: 1, // Técnico estático por ahora, preparado para AuthContext futuro
+        tecnicoId: Number(tecnicoId), // Usar el técnico seleccionado o auto-asignado
         kilometraje: numKilometraje,
         tipoServicio: tipoServicio.toUpperCase(),
         diagnostico: trimmedDiagnostico
@@ -430,7 +458,7 @@ const NuevaOrdenPage = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSaveOrden} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form onSubmit={handleSaveOrden} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
         {/* Lado Izquierdo: Cliente y Vehículo */}
         <div className="lg:col-span-2 space-y-6 flex flex-col">
@@ -441,7 +469,7 @@ const NuevaOrdenPage = () => {
                 Información del Cliente
               </h3>
             </CardHeader>
-            <CardBody className="space-y-4 flex-grow">
+            <CardBody className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-grow">
                   <Input
@@ -565,8 +593,8 @@ const NuevaOrdenPage = () => {
 
           {/* SECCIÓN 2: VEHÍCULO */}
           {clienteSeleccionado && (
-            <div ref={vehiculoSeccionRef} className="mt-6 flex flex-col flex-grow">
-              <Card className="flex flex-col flex-grow">
+            <div ref={vehiculoSeccionRef} className="mt-6 flex flex-col">
+              <Card className="flex flex-col">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <span className="flex items-center justify-center w-5 h-5 text-xs bg-blue-600 text-white rounded-full">2</span>
@@ -581,7 +609,7 @@ const NuevaOrdenPage = () => {
                     Registrar Vehículo
                   </Button>
                 </CardHeader>
-                <CardBody className="flex-grow justify-center flex flex-col">
+                <CardBody className="justify-center flex flex-col">
                   {loadingVehiculos ? (
                     <VehiculoSkeleton />
                   ) : errorVehiculos ? (
@@ -623,6 +651,11 @@ const NuevaOrdenPage = () => {
             setTipoServicio={setTipoServicio}
             diagnostico={diagnostico}
             setDiagnostico={setDiagnostico}
+            tecnicoId={tecnicoId}
+            setTecnicoId={setTecnicoId}
+            tecnicos={tecnicos}
+            perfil={perfil}
+            isAdmin={isAdmin}
             errors={errors}
             isSaving={isSavingOrden}
             onSubmit={handleSaveOrden}
