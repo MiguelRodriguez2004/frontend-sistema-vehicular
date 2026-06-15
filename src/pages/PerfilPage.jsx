@@ -46,10 +46,10 @@ const PerfilPage = () => {
       <div className="max-w-lg mx-auto mt-10 p-6 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/30 rounded-xl text-center">
         <p className="text-sm font-semibold text-rose-600 dark:text-rose-400 mb-4">{error}</p>
         <button
-          onClick={() => navigate('/ordenes')}
+          onClick={() => navigate('/dashboard')}
           className="px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors cursor-pointer"
         >
-          Volver a Órdenes
+          Volver al Dashboard
         </button>
       </div>
     );
@@ -107,7 +107,7 @@ const PerfilPage = () => {
           {/* Campos detallados */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Nombre */}
-            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-100 dark:border-slate-700/40">
+            <div className="flex items-start gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-700/40">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                 <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </div>
@@ -118,7 +118,7 @@ const PerfilPage = () => {
             </div>
 
             {/* Email */}
-            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-100 dark:border-slate-700/40">
+            <div className="flex items-start gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-700/40">
               <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                 <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
@@ -129,7 +129,7 @@ const PerfilPage = () => {
             </div>
 
             {/* Rol */}
-            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-100 dark:border-slate-700/40">
+            <div className="flex items-start gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-700/40">
               <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
                 <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               </div>
@@ -142,7 +142,7 @@ const PerfilPage = () => {
             </div>
 
             {/* Fecha de Registro */}
-            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-100 dark:border-slate-700/40">
+            <div className="flex items-start gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-700/40">
               <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
                 <Calendar className="w-4 h-4 text-violet-600 dark:text-violet-400" />
               </div>

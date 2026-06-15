@@ -318,7 +318,7 @@ const AdminUsuariosPage = () => {
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700/30">
                 {usuariosFiltrados.map((usuario) => (
-                  <tr key={usuario.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-750/50 transition-colors">
+                  <tr key={usuario.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">

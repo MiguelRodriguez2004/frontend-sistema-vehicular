@@ -199,7 +199,7 @@ const DetalleOrdenPage = () => {
               <div className="flex items-center gap-2.5 min-w-0">
                 <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                 <div className="min-w-0">
-                  <p className="font-bold text-slate-850 dark:text-slate-200 truncate max-w-[180px]">
+                  <p className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[180px]">
                     freno_delantero_desgastado.jpg
                   </p>
                   <p className="text-[10px] text-slate-400">1.4 MB</p>
@@ -211,7 +211,7 @@ const DetalleOrdenPage = () => {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-750">
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
             <Button variant="outline" size="sm" onClick={() => setIsEvidenciaModalOpen(false)}>
               Cerrar
             </Button>

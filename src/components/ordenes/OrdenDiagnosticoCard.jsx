@@ -28,7 +28,7 @@ export const OrdenDiagnosticoCard = ({ orden }) => {
       <CardBody className="p-6.5 sm:p-8 space-y-6">
         {/* Bloque del diagnóstico principal con tratamiento premium */}
         <div className="relative pl-5 border-l-4 border-blue-500">
-          <p className="text-[15px] sm:text-[17px] font-medium text-slate-850 dark:text-slate-100 leading-relaxed sm:leading-loose tracking-wide">
+          <p className="text-[15px] sm:text-[17px] font-medium text-slate-800 dark:text-slate-100 leading-relaxed sm:leading-loose tracking-wide">
             {diagnostico}
           </p>
         </div>

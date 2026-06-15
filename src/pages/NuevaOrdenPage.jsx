@@ -526,7 +526,7 @@ const NuevaOrdenPage = () => {
               {clienteNoEncontrado && !loading && !error && (
                 <div className="p-5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
                   <div className="text-center sm:text-left">
-                    <h5 className="font-bold text-slate-955 dark:text-white text-sm">Cliente no encontrado</h5>
+                    <h5 className="font-bold text-slate-900 dark:text-white text-sm">Cliente no encontrado</h5>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">El documento ingresado no coincide con ningún cliente registrado.</p>
                   </div>
                   <Button 

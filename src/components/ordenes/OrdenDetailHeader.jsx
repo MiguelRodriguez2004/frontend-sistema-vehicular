@@ -102,7 +102,7 @@ export const OrdenDetailHeader = ({
                     key={est}
                     onClick={() => handleEstadoSelect(est)}
                     type="button"
-                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-150 dark:hover:bg-slate-700/60 hover:text-slate-950 dark:hover:text-white transition-colors capitalize cursor-pointer flex items-center justify-between"
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 hover:text-slate-950 dark:hover:text-white transition-colors capitalize cursor-pointer flex items-center justify-between"
                   >
                     <span>{est.toLowerCase().replace('_', ' ')}</span>
                     {est === estado && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></div>}
