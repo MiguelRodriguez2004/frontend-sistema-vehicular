@@ -35,24 +35,24 @@ export const OrdenCard = ({ orden, onVerDetalle }) => {
   const rawId = orden?.id || orden?.ordenId || '0';
   const ordenId = formatOrderCode(rawId);
   const clienteNombre = orden?.vehiculo?.cliente?.nombre ?? 'Sin cliente';
-  const vehiculoInfo = orden?.vehiculo 
-    ? `${orden.vehiculo.marca} ${orden.vehiculo.modelo}` 
+  const vehiculoInfo = orden?.vehiculo
+    ? `${orden.vehiculo.marca} ${orden.vehiculo.modelo}`
     : 'Sin vehículo';
   const placa = orden?.vehiculo?.placa ?? '---';
   const tipoServicio = orden?.tipoServicio ?? 'PREVENTIVO';
   const estado = orden?.estado ?? 'RECIBIDO';
   const kilometrajeVal = formatKilometraje(orden?.kilometraje);
-  
+
   // Seguridad visual
   const tecnicoNombre = orden?.tecnico?.nombre ?? 'Sin técnico';
   const fechaIngreso = formatDate(orden?.fechaIngreso || orden?.createdAt);
   const cantidadNovedades = orden?.cantidadNovedades ?? 0;
-  
+
   // Diagnóstico altamente compacto (máximo 2 líneas, sin caja gris pesada)
   const diagnostico = truncateText(orden?.diagnostico, 75);
 
   return (
-    <div 
+    <div
       onClick={() => onVerDetalle(rawId)}
       className="group bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl shadow-3xs hover:shadow-[0_0_15px_rgba(59,130,246,0.06)] hover:border-blue-500/40 dark:hover:border-blue-500/35 hover:-translate-y-[2px] transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden p-4 space-y-3 select-none"
     >
@@ -99,7 +99,7 @@ export const OrdenCard = ({ orden, onVerDetalle }) => {
             {kilometrajeVal}
           </span>
         </div>
-        
+
         {/* Fila 2 */}
         <div className="space-y-1">
           <span className="text-xs text-slate-400 dark:text-slate-500 font-bold block uppercase tracking-wide">Técnico</span>
@@ -129,11 +129,10 @@ export const OrdenCard = ({ orden, onVerDetalle }) => {
         <div className="flex items-center gap-1.5 text-xs text-slate-400">
           <ClipboardList className="w-4 h-4 shrink-0" />
           <span>Novedades:</span>
-          <span className={`inline-flex items-center justify-center px-2 py-0.5 font-bold rounded text-xs ${
-            cantidadNovedades > 0
+          <span className={`inline-flex items-center justify-center px-2 py-0.5 font-bold rounded text-xs ${cantidadNovedades > 0
               ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
               : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300'
-          }`}>
+            }`}>
             {cantidadNovedades}
           </span>
         </div>
@@ -150,6 +149,8 @@ export const OrdenCard = ({ orden, onVerDetalle }) => {
         >
           Ver Detalle
         </Button>
+
+
       </div>
     </div>
   );
